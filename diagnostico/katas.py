@@ -8,20 +8,50 @@ manejo de errores, dataclasses y context managers. No requiere librerías extern
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Iterator
-from dataclasses import dataclass
+import string
 
 
 # 1. Comprensiones -----------------------------------------------------------
 def palabras_por_longitud(texto: str) -> dict[int, list[str]]:
     """Agrupa palabras únicas (minúsculas, sin puntuación) por longitud, ordenadas."""
-    raise NotImplementedError
+
+    text = texto.lower()
+    regla = str.maketrans("", "", string.punctuation)
+    text = text.translate(regla)
+    text = text.split()
+    text = set(text)
+
+    listado = {}
+
+    for text in text:
+        longitud = len(text)
+
+        if longitud not in listado:
+            listado[longitud] = []
+
+        listado[longitud].append(text)
+
+    return sorted(listado.items())
 
 
 # 2. Colecciones -------------------------------------------------------------
 def top_n(frecuencias: Iterable[str], n: int) -> list[tuple[str, int]]:
     """Los n elementos más frecuentes; empate → orden alfabético."""
-    raise NotImplementedError
+
+    contador = {}
+    resultado = {}
+
+    for palabra in frecuencias:
+        if palabra in contador:
+            contador[palabra] += 1
+        else:
+            contador[palabra] = 1
+
+    for letra, Frenc in contador.items():
+        if Frenc == n:
+            resultado[letra] = Frenc
+
+    return sorted(resultado.items())
 
 
 # 3. Funciones de orden superior / closures ----------------------------------
@@ -30,33 +60,5 @@ def reintentar(veces: int) -> Callable[[Callable[..., object]], Callable[..., ob
     raise NotImplementedError
 
 
-# 4. Generadores -------------------------------------------------------------
-def en_lotes[T](items: Iterable[T], tamano: int) -> Iterator[list[T]]:
-    """Entrega listas de `tamano` elementos (la última puede ser menor). Perezoso."""
-    raise NotImplementedError
-
-
-# 5. Dataclasses + propiedades -----------------------------------------------
-@dataclass
-class Factura:
-    subtotal: float
-    iva: float = 0.19
-
-    @property
-    def total(self) -> float:
-        raise NotImplementedError
-
-    def __post_init__(self) -> None:
-        """Debe lanzar ValueError si subtotal < 0 o iva fuera de [0, 1]."""
-        raise NotImplementedError
-
-
-# 6. Context managers --------------------------------------------------------
-class Cronometro:
-    """with Cronometro() as c: ...  → c.segundos tiene la duración del bloque."""
-
-    def __enter__(self) -> Cronometro:
-        raise NotImplementedError
-
-    def __exit__(self, *exc: object) -> None:
-        raise NotImplementedError
+print(palabras_por_longitud("El sol, el mar y la sal."))
+print(top_n(["b", "a", "b", "c", "a", "d"], 2))
